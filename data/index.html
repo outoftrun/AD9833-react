@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+</head>
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    /* Create three equal columns that floats next to each other */
+    .column {
+        float: left;
+        width: 50.0%;
+        padding: 10px;
+        height: 50px; /* Should be removed. Only for demonstration */
+    }
+
+    /* Clear floats after the columns */
+    .row:after {
+        content: "";
+        display: table;
+        clear: both;
+    }
+</style>
+
+<body>
+<a href="https://www.analog.com/media/en/technical-documentation/data-sheets/ad9833.pdf">
+<h2>AD9833</h2>
+</a>
+<div class="row">
+
+    <div class="column">
+        <label for=ad9833-frequency-0>Frequency 0 (0.004 MHz-12.5 MHz):</label>
+        <input id='ad9833-frequency-0' max=12500000 min=0.010 name=Frequency-0 step=0.004 type=number value="1000">
+        <label for=Step0></label>
+        <select id="Step0" name="Step0" onchange="range(options.selectedIndex,'ad9833-frequency-0')">
+            <option value=".004 Hz">0.04Hz</option>
+            <option value="Hz">Hz</option>
+            <option value="kHz">kHz</option>
+            <option value="mHz">mHz</option>
+        </select>
+    </div>
+    <div class="column">
+        <label for=ad9833-phase-0>Phase 0 (0.0-359.99):</label>
+        <input id="ad9833-phase-0" max=360 min=0.0 name=Phase0 type=number value="0">
+    </div>
+</div>
+<div class="row">
+
+    <div class="column">
+        <label for=ad9833-frequency-1>Frequency 0 (0.004 MHz-12.5 MHz):</label>
+        <input id='ad9833-frequency-1' max=12500000 min=0.010 name=Frequency-0 step=0.004 type=number value="1000">
+        <label for=Step1></label>
+        <select id="Step1" onchange="range(options.selectedIndex,'ad9833-frequency-1')">
+            <option value=".004 Hz">0.04Hz</option>
+            <option value="Hz">Hz</option>
+            <option value="kHz">kHz</option>
+            <option value="mHz">mHz</option>
+        </select>
+    </div>
+    <div class="column">
+        <label for=ad9833-phase-1>Phase 0 (0.0-359.99):</label>
+        <input id="ad9833-phase-1" max=360 min=0.0 name=Phase0  type=number value="0">
+    </div>
+</div>
+<div class="row">
+
+    <div class="row">
+        <div>
+            <input checked="checked" id=off name=drone onclick="handleClick(value)" type=radio value=off>
+            <label for=off>Off</label>
+            <input id=sine name=drone onclick="handleClick(value)" type=radio value=sine>
+            <label for=sine>Sine</label>
+            <input id=square name=drone onclick="handleClick(value)" type=radio value=square>
+            <label for=square>Square</label>
+            <input id=square1 name=drone onclick="handleClick(value)" type=radio value=square1>
+            <label for=square1>Square (1/2)</label>
+            <input id=triangle name=drone onclick="handleClick(value)" type=radio value=triangle>
+            <label for=triangle>Triangle</label>
+
+        </div>
+    </div>
+</div>
+</body>
+<script>
+    document.getElementById("ad9833-frequency-0").onchange = function () {
+        myFunction("ad9833-frequency-0")
+    };
+    document.getElementById("ad9833-frequency-1").onchange = function () {
+        myFunction("ad9833-frequency-1")
+    };
+    document.getElementById("ad9833-phase-0").onchange = function () {
+        myFunction("ad9833-phase-0")
+    };
+    document.getElementById("ad9833-phase-1").onchange = function () {
+        myFunction("ad9833-phase-1")
+    };
+
+    function range(who, what) {
+        const v = document.getElementById(what);
+        let k = 0;
+        switch (who) {
+            case 0:
+                k = 0.04;
+                break;
+            case 1:
+                k = 1;
+                break;
+            case 2:
+                k = 1000;
+                break;
+            case 3:
+                k = 1000000;
+                break;
+        }
+        v.setAttribute('step', k.toString());
+    }
+
+    function handleClick(value) {
+
+        console.log(value);
+    }
+
+    function myFunction(channel) {
+        let x = document.getElementById(channel);
+        console.log(channel, x.value);
+    }
+
+</script>
+</html>
