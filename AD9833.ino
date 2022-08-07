@@ -113,7 +113,7 @@ bool handleFileRead(String path) {
   DBG_OUTPUT_PORT.println(String("handleFileRead: ") + path);
 
   if (path.endsWith("/")) {
-    path += "index.htm";
+    path += "index.html";
   }
 
   String contentType = mime::getContentType(path);
@@ -173,11 +173,11 @@ void handleNotFound() {
 }
 
 
-const int cs = 0;   // gpio16
-const int data = 5;    // gpio14
-const int clock_ = 6; //gpio12
-const int fsync = 7; //gpio13
-const int   gnd_ = 8; // gpio15
+//const int cs = 0;   // gpio16
+//const int data = 5;    // gpio14
+//const int clock_ = 6; //gpio12
+//const int fsync = 7; //gpio13
+//const int   gnd_ = 8; // gpio15
 // Pins for SPI comm with the AD9833 IC
 #define DATA  14  ///< SPI Data pin number  gpio14
 #define CLK   12  ///< SPI Clock pin number gpio12
@@ -193,13 +193,15 @@ void setup(void)
 
   AD.begin();
   AD.reset();
+  delay(1000);
+
 
   ////////////////////////////////
   // SERIAL INIT
   DBG_OUTPUT_PORT.begin(115200);
   DBG_OUTPUT_PORT.setDebugOutput(true);
 
-
+  AD.setFrequency( MD_AD9833::CHAN_0, 1000);
   ////////////////////////////////
   // FILESYSTEM INIT
 
@@ -313,7 +315,7 @@ static void set() {
         float frequency ;
         MD_AD9833::channel_t channel;
         MD_AD9833::mode_t type;
-        
+
         // Here store data or doing operation
         unsigned char cha = postObj[channelString];
         Serial.printf("%s \t=\t%d\n", channelString, channel);
@@ -327,9 +329,9 @@ static void set() {
           errorString = F("incorrect Channel");
           goto error;
         }
+
         if (postObj.containsKey(typeString)) {
           String typeToken = postObj[typeString];
-          Serial.printf("%s \t\t=\t%s\n" , typeString, type);
 
           if (typeToken.equalsIgnoreCase( F("Square"))) {
             type = MD_AD9833:: MODE_SQUARE1;
@@ -343,7 +345,7 @@ static void set() {
           else if (typeToken.equalsIgnoreCase(F("Sine"))) {
             type = MD_AD9833::MODE_SINE;
           }
-          else if (typeToken.equalsIgnoreCase(F("Triange"))) {
+          else if (typeToken.equalsIgnoreCase(F("Triangle"))) {
             type =   MD_AD9833::MODE_TRIANGLE;
           }
           else if (typeToken.equalsIgnoreCase(F("Off"))) {
@@ -353,19 +355,26 @@ static void set() {
             errorString = F("incorrect type");
             goto error;
           }
+          Serial.printf("%s \t\t=\t%d\n" , typeToken.c_str(), type);
+
           AD.setMode(type);
 
         }
+
         if (postObj.containsKey(frequencyString)) {
           frequency = postObj[frequencyString];
-          AD.setFrequency(channel, frequency);
+
           Serial.printf("%s \t=\t%f\n", frequencyString, frequency);
+          AD.setFrequency(channel, frequency);
         }
         if ( postObj.containsKey(phaseString)) {
-          static float phase = postObj[phaseString];
-          AD.setPhase(channel, (((int)phase) * 10) % 3600 );
+          float phase = postObj[phaseString];
           Serial.printf("%s \t\t=\t%f\n", phaseString, phase);
+          AD.setPhase(channel, (((int)phase) * 10) % 3600 );
+
         }
+
+done:
         // Create the response
         // To get the status of the result you can get the http status so
         // this part can be unusefully

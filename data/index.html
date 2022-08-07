@@ -2,8 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
-
+    <title>AD9833</title>
 </head>
 <style>
     * {
@@ -24,19 +23,36 @@
         display: table;
         clear: both;
     }
+
+    th, td, p, input, h3 {
+        font: 15px 'Segoe UI';
+    }
+
+    table, th, td {
+        border: solid 1px #ddd;
+        border-collapse: collapse;
+        padding: 2px 3px;
+        text-align: center;
+    }
+
+    th {
+        font-weight: bold;
+    }
 </style>
 
 <body>
+
+
 <a href="https://www.analog.com/media/en/technical-documentation/data-sheets/ad9833.pdf">
-<h2>AD9833</h2>
+    <h2>AD9833</h2>
 </a>
 <div class="row">
 
     <div class="column">
-        <label for=ad9833-frequency-0>Frequency 0 (0.004 MHz-12.5 MHz):</label>
-        <input id='ad9833-frequency-0' max=12500000 min=0.010 name=Frequency-0 step=0.004 type=number value="1000">
+        <label for=frequency-0>Frequency 0 (0.004 MHz-12.5 MHz):</label>
+        <input id='frequency-0' max=12500000 min=0.010 name=Frequency-0 step=0.004 type=number value="1000">
         <label for=Step0></label>
-        <select id="Step0" name="Step0" onchange="range(options.selectedIndex,'ad9833-frequency-0')">
+        <select id="Step0" name="Step0" onchange="range(options.selectedIndex,'frequency-0')">
             <option value=".004 Hz">0.04Hz</option>
             <option value="Hz">Hz</option>
             <option value="kHz">kHz</option>
@@ -44,17 +60,17 @@
         </select>
     </div>
     <div class="column">
-        <label for=ad9833-phase-0>Phase 0 (0.0-359.99):</label>
-        <input id="ad9833-phase-0" max=360 min=0.0 name=Phase0 type=number value="0">
+        <label for=phase-0>Phase 0 (0.0-359.99):</label>
+        <input id="phase-0" max=360 min=0.0 name=Phase0 type=number value="0">
     </div>
 </div>
 <div class="row">
 
     <div class="column">
-        <label for=ad9833-frequency-1>Frequency 0 (0.004 MHz-12.5 MHz):</label>
-        <input id='ad9833-frequency-1' max=12500000 min=0.010 name=Frequency-0 step=0.004 type=number value="1000">
+        <label for=frequency-1>Frequency 0 (0.004 MHz-12.5 MHz):</label>
+        <input id='frequency-1' max=12500000 min=0.010 name=Frequency-0 step=0.004 type=number value="1000">
         <label for=Step1></label>
-        <select id="Step1" onchange="range(options.selectedIndex,'ad9833-frequency-1')">
+        <select id="Step1" onchange="range(options.selectedIndex,'frequency-1')">
             <option value=".004 Hz">0.04Hz</option>
             <option value="Hz">Hz</option>
             <option value="kHz">kHz</option>
@@ -62,8 +78,8 @@
         </select>
     </div>
     <div class="column">
-        <label for=ad9833-phase-1>Phase 0 (0.0-359.99):</label>
-        <input id="ad9833-phase-1" max=360 min=0.0 name=Phase0  type=number value="0">
+        <label for=phase-1>Phase 0 (0.0-359.99):</label>
+        <input id="phase-1" max=360 min=0.0 name=Phase0 type=number value="0">
     </div>
 </div>
 <div class="row">
@@ -80,54 +96,106 @@
             <label for=square1>Square (1/2)</label>
             <input id=triangle name=drone onclick="handleClick(value)" type=radio value=triangle>
             <label for=triangle>Triangle</label>
-
         </div>
     </div>
+    <div id="esp"></div>
 </div>
+
+<h2>
+    ESP Data.
+</h2>
+<div id="showData"></div>
 </body>
 <script>
-    document.getElementById("ad9833-frequency-0").onchange = function () {
-        myFunction("ad9833-frequency-0")
+    // using regular methods.
+
+    function tableFromJson(espInfo) {
+        let col = [];
+        for (let key in espInfo) {
+            if (col.indexOf(key) === -1) {
+                col.push(key);
+            }
+        }
+        // Create a table.
+        let table = document.createElement("table");
+
+        // Create table header row using the extracted headers above.
+        let tr = table.insertRow(-1);                   // table row.
+
+        for (let i = 0; i < col.length; i++) {
+            let th = document.createElement("th");      // table header.
+            th.innerHTML = col[i];
+            tr.appendChild(th);
+        }
+        tr = table.insertRow(-1);
+
+        for (let j = 0; j < col.length; j++) {
+            let tabCell = tr.insertCell(-1);
+            tabCell.innerHTML = espInfo[col[j]];
+        }
+
+        // Now, add the newly created table with json data, to a container.
+        let divShowData = document.getElementById('showData');
+        divShowData.innerHTML = "";
+        divShowData.appendChild(table);
+    }
+
+    const fetchPromise = fetch("/espData");
+    fetchPromise.then(response => {
+        return response.json();
+    }).then(people => {
+        tableFromJson(people);
+    });
+
+    document.getElementById("frequency-0").onchange = function () {
+        build(0);
     };
-    document.getElementById("ad9833-frequency-1").onchange = function () {
-        myFunction("ad9833-frequency-1")
+    document.getElementById("frequency-1").onchange = function () {
+        build(1);
     };
-    document.getElementById("ad9833-phase-0").onchange = function () {
-        myFunction("ad9833-phase-0")
+    document.getElementById("phase-0").onchange = function () {
+        build(0);
     };
-    document.getElementById("ad9833-phase-1").onchange = function () {
-        myFunction("ad9833-phase-1")
+    document.getElementById("phase-1").onchange = function () {
+        build(1);
     };
 
     function range(who, what) {
-        const v = document.getElementById(what);
-        let k = 0;
-        switch (who) {
-            case 0:
-                k = 0.04;
-                break;
-            case 1:
-                k = 1;
-                break;
-            case 2:
-                k = 1000;
-                break;
-            case 3:
-                k = 1000000;
-                break;
-        }
-        v.setAttribute('step', k.toString());
+        const r = ["0.04", "1", "1000", "1000000"];
+        document.getElementById(what).setAttribute('step', r[who]);
     }
 
     function handleClick(value) {
+        let object = {};
+        object['type'] = document.querySelector('input[name="drone"]:checked').value;
+        const fetchPromise = fetch("/ad9833?set=" + JSON.stringify(object));
 
+        fetchPromise.then(response => {
+            return response;
+        })
+
+
+        console.log(JSON.stringify(object));
         console.log(value);
     }
 
-    function myFunction(channel) {
-        let x = document.getElementById(channel);
-        console.log(channel, x.value);
-    }
 
+    function build(channel) {
+        let object = {};
+        object['channel'] = channel;
+
+        object['frequency'] = document.getElementById("frequency-" + channel).value;
+        object['phase'] = document.getElementById("phase-" + channel).value;
+
+        object['type'] = document.querySelector('input[name="drone"]:checked').value;
+        const fetchPromise = fetch("/ad9833?set=" + JSON.stringify(object));
+
+        fetchPromise.then(response => {
+            return response;
+        })
+
+
+        console.log(JSON.stringify(object));
+    }
 </script>
 </html>
