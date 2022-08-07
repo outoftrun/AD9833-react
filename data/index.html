@@ -168,7 +168,12 @@
     function handleClick(value) {
         let object = {};
         object['type'] = document.querySelector('input[name="drone"]:checked').value;
-        const fetchPromise = fetch("/ad9833?set=" + JSON.stringify(object));
+        const fetchPromise = fetch("/ad9833?set=" + JSON.stringify(object),
+        {
+            method: "POST"
+        })
+
+
 
         fetchPromise.then(response => {
             return response;
@@ -184,11 +189,14 @@
         let object = {};
         object['channel'] = channel;
 
-        object['frequency'] = document.getElementById("frequency-" + channel).value;
-        object['phase'] = document.getElementById("phase-" + channel).value;
+        object['frequency'] = parseFloat(document.getElementById("frequency-" + channel).value);
+        object['phase'] = parseFloat(document.getElementById("phase-" + channel).value);
 
         object['type'] = document.querySelector('input[name="drone"]:checked').value;
-        const fetchPromise = fetch("/ad9833?set=" + JSON.stringify(object));
+        const fetchPromise = fetch("/ad9833?set=" + JSON.stringify(object),
+            {
+                method: "POST"
+            });
 
         fetchPromise.then(response => {
             return response;
